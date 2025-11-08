@@ -1094,6 +1094,11 @@ declare namespace API {
     status: number;
   };
 
+  type UpdateUserSubscribeNoteRequest = {
+    user_subscribe_id: number;
+    note: string;
+  };
+
   type User = {
     id: number;
     avatar: string;
@@ -1167,6 +1172,7 @@ declare namespace API {
     upload: number;
     token: string;
     status: number;
+    note: string;
     created_at: number;
     updated_at: number;
   };
@@ -1185,6 +1191,7 @@ declare namespace API {
     upload: number;
     token: string;
     status: number;
+    note: string;
     created_at: number;
     updated_at: number;
     is_try_out: boolean;

@@ -1,6 +1,7 @@
 'use client';
 
 import { Display } from '@/components/display';
+import EditNote from '@/components/subscribe/edit-note';
 import Renewal from '@/components/subscribe/renewal';
 import ResetTraffic from '@/components/subscribe/reset-traffic';
 import Unsubscribe from '@/components/subscribe/unsubscribe';
@@ -249,9 +250,16 @@ export default function Content() {
                   <CardTitle className='font-medium'>
                     {item.subscribe.name}
                     <p className='text-foreground/50 mt-1 text-sm'>{formatDate(item.start_time)}</p>
+                    {item.note && (
+                      <p className='text-muted-foreground mt-2 flex items-center gap-1.5 text-sm font-normal'>
+                        <Icon icon='uil:file-edit-alt' className='size-4' />
+                        {item.note}
+                      </p>
+                    )}
                   </CardTitle>
                   {item.status !== 4 && (
                     <div className='flex flex-wrap gap-2'>
+                      <EditNote id={item.id} currentNote={item.note} onSuccess={refetch} />
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size='sm' variant='destructive'>

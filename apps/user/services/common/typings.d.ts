@@ -1083,6 +1083,7 @@ declare namespace API {
     upload: number;
     token: string;
     status: number;
+    note: string;
     created_at: number;
     updated_at: number;
   };

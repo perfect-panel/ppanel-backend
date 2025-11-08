@@ -30,3 +30,18 @@ export async function queryUserSubscribeNodeList(options?: { [key: string]: any 
     },
   );
 }
+
+/** Update user subscribe note PUT /v1/public/user/subscribe_note */
+export async function updateUserSubscribeNote(
+  body: API.UpdateUserSubscribeNoteRequest,
+  options?: { [key: string]: any },
+) {
+  return request<API.Response>('/v1/public/user/subscribe_note', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
