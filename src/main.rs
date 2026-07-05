@@ -10,6 +10,7 @@ pub mod adapter;
 pub mod cache;
 pub mod config;
 pub mod db;
+pub mod exchange_rate;
 pub mod handler;
 pub mod middleware;
 pub mod migration;

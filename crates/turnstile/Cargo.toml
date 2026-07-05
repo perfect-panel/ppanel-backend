@@ -1,0 +1,13 @@
+[package]
+name = "turnstile"
+version = "0.1.0"
+edition = "2021"
+description = "Cloudflare Turnstile token verification — port of pkg/turnstile"
+
+[dependencies]
+anyhow = "1"
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["time"] }
+uuid = { version = "1", features = ["v4"] }
