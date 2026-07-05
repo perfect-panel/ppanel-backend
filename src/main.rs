@@ -3,6 +3,7 @@ use std::sync::Arc;
 use axum::routing::get;
 use tracing_subscriber::layer::SubscriberExt as _;
 use tracing_subscriber::util::SubscriberInitExt as _;
+use tracing_subscriber::Layer as _;
 use tracing_subscriber::EnvFilter;
 
 pub mod adapter;
