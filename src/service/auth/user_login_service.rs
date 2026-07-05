@@ -24,6 +24,14 @@ impl UserLoginService {
     }
 
     pub async fn login(&self, req: UserLoginRequest) -> Result<LoginResponse, anyhow::Error> {
+        // Turnstile verification (mirrors Go: Verify.LoginVerify && !Debug)
+        super::utils::check_turnstile(
+            self.config.verify.login_verify && self.config.model != "dev",
+            &self.config.verify.turnstile_secret,
+            &req.cf_token,
+            &req.ip,
+        ).await?;
+
         let user = self
             .repos.user.find_one_by_email(&req.email).await
             .map_err(|_| anyhow!(CodeError::new_err_code(error_code::DATABASE_QUERY_ERROR)))?

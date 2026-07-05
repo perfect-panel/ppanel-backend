@@ -28,3 +28,5 @@ pub const FORTHWITH_TRAFFIC_STATISTICS: &str = "forthwith:traffic:statistics";
 
 // ── task / quota ───────────────────────────────────────────────────────
 pub const FORTHWITH_QUOTA_TASK: &str = "forthwith:quota:task";
+/// Daily exchange-rate refresh (mirrors Go `ForthwithRateTask`).
+pub const FORTHWITH_RATE_TASK: &str = "forthwith:rate:task";

@@ -26,6 +26,14 @@ impl UserRegisterService {
     }
 
     pub async fn register(&self, req: UserRegisterRequest) -> Result<LoginResponse, anyhow::Error> {
+        // Turnstile (mirrors Go: Verify.RegisterVerify && !Debug)
+        super::utils::check_turnstile(
+            self.config.verify.register_verify && self.config.model != "dev",
+            &self.config.verify.turnstile_secret,
+            &req.cf_token,
+            &req.ip,
+        ).await?;
+
         let cfg = &self.config.register;
 
         if cfg.stop_register {

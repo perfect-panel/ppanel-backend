@@ -25,6 +25,14 @@ impl TelephoneLoginService {
     }
 
     pub async fn login(&self, req: TelephoneLoginRequest) -> Result<LoginResponse, anyhow::Error> {
+        // Turnstile (mirrors Go: Verify.LoginVerify && !Debug)
+        super::utils::check_turnstile(
+            self.config.verify.login_verify && self.config.model != "dev",
+            &self.config.verify.turnstile_secret,
+            &req.cf_token,
+            &req.ip,
+        ).await?;
+
         let phone = format!("+{}{}", req.telephone_area_code, req.telephone);
 
         let auth_method = self.repos.user.find_auth_method_by_open_id("mobile", &phone).await

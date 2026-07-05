@@ -26,6 +26,14 @@ impl TelephoneUserRegisterService {
     }
 
     pub async fn register(&self, req: TelephoneRegisterRequest) -> Result<LoginResponse, anyhow::Error> {
+        // Turnstile (mirrors Go: Verify.RegisterVerify && !Debug)
+        super::utils::check_turnstile(
+            self.config.verify.register_verify && self.config.model != "dev",
+            &self.config.verify.turnstile_secret,
+            &req.cf_token,
+            &req.ip,
+        ).await?;
+
         if self.config.register.stop_register {
             return Err(anyhow!(CodeError::new_err_code(error_code::STOP_REGISTER)));
         }

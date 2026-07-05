@@ -10,3 +10,4 @@ pub mod telephone_user_register_service;
 pub mod trial_cache;
 pub mod user_login_service;
 pub mod user_register_service;
+pub mod utils;
