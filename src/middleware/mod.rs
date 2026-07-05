@@ -4,5 +4,6 @@ pub mod device_middleware;
 pub mod logger_middleware;
 pub mod notify_middleware;
 pub mod pan_domain_middleware;
+pub mod rate_limit_middleware;
 pub mod server_middleware;
 pub mod trace_middleware;
