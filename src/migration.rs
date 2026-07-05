@@ -1,37 +1,104 @@
-//! Database migration runner and bootstrap utilities.
+//! Database bootstrap utilities.
 //!
-//! Embeds both MySQL and PostgreSQL migration files at compile time via
-//! `sqlx::migrate!` and selects the correct set at runtime based on the
-//! [`Dialect`] detected from configuration.
+//! Schema migrations are **not** owned by this Rust binary. They are managed by
+//! the standalone Go tool at `tools/migrate/` (built with `go build -o ppanel-migrate ./cmd/migrate`),
+//! which uses golang-migrate and tracks state in the `schema_migrations` table
+//! — the same table the Go server uses. That makes a single source of truth
+//! for schema across the Go and Rust backends.
+//!
+//! On startup, this module unconditionally invokes the `ppanel-migrate up` command.
+//! The tool's own logic is idempotent — if the DB is already at the latest
+//! version it returns ErrNoChange with no side effects.
 //!
 //! **NOTE**: This is the Rust rewrite of the Go backend. The Go version is
 //! deprecated and will be replaced by this Rust implementation.
 
-mod mysql_migrations {
-    #![allow(unused)]
-    pub(super) const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("migrations/mysql");
-}
-
-mod postgres_migrations {
-    #![allow(unused)]
-    pub(super) fn migrator() -> sqlx::migrate::Migrator {
-        let mut m = sqlx::migrate!("migrations/postgres");
-        m.set_locking(false);
-        m.no_tx = true;
-        m
-    }
-}
-
 pub use crate::repository::Dialect;
 
+use crate::config::DatabaseConfig;
+use crate::db::build_dsn;
 use crate::repository::Db;
+use std::path::PathBuf;
+use std::process::Command;
 
-/// Run all pending migrations for the detected database dialect.
-pub async fn run_migrations(db: &Db) -> Result<(), sqlx::migrate::MigrateError> {
-    match db {
-        Db::Postgres(pool) => postgres_migrations::migrator().run(pool).await,
-        Db::Mysql(pool) => mysql_migrations::MIGRATOR.run(pool).await,
+/// Run all pending schema migrations by invoking the `ppanel-migrate up` command.
+/// Always called on startup — the tool is idempotent and is a no-op if the DB
+/// is already at the latest version.
+pub async fn ensure_schema(cfg: &DatabaseConfig) {
+    tracing::info!("running ppanel-migrate up");
+    run_migrate_tool(cfg).await;
+    tracing::info!("ppanel-migrate completed");
+}
+
+/// Resolve the path to the `ppanel-migrate` binary.
+///
+/// Search order:
+/// 1. `${PPANEL_MIGRATE_BIN}` if set.
+/// 2. Next to the current executable (`./ppanel-migrate`).
+/// 3. One level up from the executable (cargo puts the binary in target/release/;
+///    the migrate tool often lives at tools/migrate/ppanel-migrate).
+/// 4. `$PATH` (via Command's default lookup).
+fn locate_migrate_bin() -> PathBuf {
+    if let Ok(p) = std::env::var("PPANEL_MIGRATE_BIN") {
+        return PathBuf::from(p);
     }
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            let candidate = dir.join("ppanel-migrate");
+            if candidate.is_file() {
+                return candidate;
+            }
+            if let Some(parent) = dir.parent() {
+                let candidate = parent.join("ppanel-migrate");
+                if candidate.is_file() {
+                    return candidate;
+                }
+            }
+        }
+    }
+    PathBuf::from("ppanel-migrate")
+}
+
+async fn run_migrate_tool(cfg: &DatabaseConfig) {
+    let bin = locate_migrate_bin();
+    let driver = match cfg.driver.as_str() {
+        "mysql" => "mysql",
+        _ => "postgres",
+    };
+    let dsn = build_dsn(cfg);
+
+    tracing::info!(driver, bin = %bin.display(), "running ppanel-migrate up");
+
+    // Run the migrate tool synchronously — it must complete before we serve
+    // any traffic. Failures are fatal.
+    let output = Command::new(&bin)
+        .arg("-driver")
+        .arg(driver)
+        .arg("-dsn")
+        .arg(&dsn)
+        .arg("up")
+        .output()
+        .unwrap_or_else(|e| {
+            panic!(
+                "failed to execute ppanel-migrate at {}: {e}. \
+                 Build it with `go build -o ppanel-migrate ./cmd/migrate` \
+                 from ppanel-backend/tools/migrate, or set $PPANEL_MIGRATE_BIN",
+                bin.display(),
+            )
+        });
+
+    if !output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        panic!(
+            "ppanel-migrate exited with status {}: {}{}{}",
+            output.status,
+            stdout,
+            if !stdout.is_empty() && !stderr.is_empty() { "\n" } else { "" },
+            stderr,
+        );
+    }
+    tracing::info!("ppanel-migrate completed");
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -64,7 +131,6 @@ async fn create_admin_user_pg(
         return Ok(());
     }
 
-    let now = chrono::Utc::now().timestamp_millis();
     let now_ts = chrono::Utc::now(); // chrono::DateTime<Utc> -> PG timestamp
     let password_hash = hash_password_pbkdf2(password);
     let refer_code = generate_invite_code();
@@ -193,8 +259,3 @@ fn hash_password_pbkdf2(password: &str) -> String {
 fn generate_invite_code() -> String {
     format!("u{}", &uuid::Uuid::new_v4().to_string().replace('-', "")[..12])
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-//  Bootstrap: initial admin account
-// ═══════════════════════════════════════════════════════════════════════════
-

@@ -1,4 +1,0 @@
-ALTER TABLE "server_rule_group"
-ADD COLUMN "default" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN "type" VARCHAR(100) NOT NULL DEFAULT '';
-

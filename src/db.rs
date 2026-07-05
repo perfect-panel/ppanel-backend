@@ -39,23 +39,20 @@ pub async fn init_pool(cfg: &DatabaseConfig) -> Result<Db, sqlx::Error> {
 
 // ─── DSN builder ─────────────────────────────────────────────────────────
 
-fn build_dsn(cfg: &DatabaseConfig) -> String {
+pub(crate) fn build_dsn(cfg: &DatabaseConfig) -> String {
+    let dialect = detect_dialect(cfg);
     let addr = cfg
         .addr
         .as_deref()
         .filter(|a| !a.is_empty())
-        .unwrap_or(match detect_dialect(cfg) {
+        .unwrap_or(match dialect {
             Dialect::Postgres => "localhost:5432",
             Dialect::Mysql => "localhost:3306",
         });
     let password = url_encode_password(&cfg.password);
-    let query = if cfg.config.is_empty() {
-        default_query(cfg)
-    } else {
-        &cfg.config
-    };
+    let query = pick_query(cfg, dialect);
 
-    match detect_dialect(cfg) {
+    match dialect {
         Dialect::Postgres => format!(
             "postgres://{}:{}@{}/{}?{}",
             cfg.username, password, addr, cfg.dbname, query,
@@ -71,8 +68,42 @@ fn detect_dialect(cfg: &DatabaseConfig) -> Dialect {
     Dialect::from_driver(&cfg.driver)
 }
 
-fn default_query(cfg: &DatabaseConfig) -> &'static str {
-    match detect_dialect(cfg) {
+/// Pick the URL query string for the DSN.
+///
+/// `DatabaseConfig.config` defaults to a MySQL-flavoured string
+/// (`charset=utf8mb4&parseTime=true&loc=...`), so an unset YAML field
+/// silently gives the wrong params to a Postgres connection. To stay
+/// backwards-compatible we only honour `cfg.config` when it looks
+/// compatible with the active dialect; otherwise fall back to
+/// `default_query`.
+fn pick_query(cfg: &DatabaseConfig, dialect: Dialect) -> String {
+    let raw = cfg.config.trim();
+    if !raw.is_empty() && query_matches_dialect(raw, dialect) {
+        return raw.to_string();
+    }
+    default_query(dialect).to_string()
+}
+
+fn query_matches_dialect(query: &str, dialect: Dialect) -> bool {
+    // Heuristic — MySQL uses `charset=` / `parseTime=` / `loc=`; Postgres
+    // uses `sslmode=` / `TimeZone=` / `channel_binding=`. Treat any MySQL-
+    // specific key under a Postgres dialect as a mismatch, and vice versa.
+    let q = query.to_ascii_lowercase();
+    match dialect {
+        Dialect::Postgres => {
+            !q.contains("charset=")
+                && !q.contains("parsetime=")
+                && !q.contains("&loc=")
+                && !q.starts_with("loc=")
+        }
+        Dialect::Mysql => {
+            !(q.contains("sslmode=") || q.contains("timezone=") || q.contains("channel_binding="))
+        }
+    }
+}
+
+fn default_query(dialect: Dialect) -> &'static str {
+    match dialect {
         Dialect::Postgres => "sslmode=disable&TimeZone=Asia/Shanghai",
         Dialect::Mysql => "charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai",
     }
