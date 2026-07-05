@@ -1,2 +1,0 @@
-ALTER TABLE "nodes"
-DROP COLUMN "sort";
