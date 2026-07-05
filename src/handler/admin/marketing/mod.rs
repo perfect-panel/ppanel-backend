@@ -1,0 +1,18 @@
+mod create_batch_send_email_task_handler;
+pub use create_batch_send_email_task_handler::create_batch_send_email_task;
+mod create_quota_task_handler;
+pub use create_quota_task_handler::create_quota_task;
+mod get_batch_send_email_task_list_handler;
+pub use get_batch_send_email_task_list_handler::get_batch_send_email_task_list;
+mod get_batch_send_email_task_status_handler;
+pub use get_batch_send_email_task_status_handler::get_batch_send_email_task_status;
+mod get_pre_send_email_count_handler;
+pub use get_pre_send_email_count_handler::get_pre_send_email_count;
+mod query_quota_task_list_handler;
+pub use query_quota_task_list_handler::query_quota_task_list;
+mod query_quota_task_pre_count_handler;
+pub use query_quota_task_pre_count_handler::query_quota_task_pre_count;
+mod query_quota_task_status_handler;
+pub use query_quota_task_status_handler::query_quota_task_status;
+mod stop_batch_send_email_task_handler;
+pub use stop_batch_send_email_task_handler::stop_batch_send_email_task;

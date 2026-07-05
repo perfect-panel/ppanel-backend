@@ -1,0 +1,5 @@
+pub mod create_subscribe_application_service;
+pub mod delete_subscribe_application_service;
+pub mod get_subscribe_application_list_service;
+pub mod preview_subscribe_template_service;
+pub mod update_subscribe_application_service;

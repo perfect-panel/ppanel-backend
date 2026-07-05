@@ -1,0 +1,2 @@
+mod get_available_payment_methods_handler;
+pub use get_available_payment_methods_handler::get_available_payment_methods;

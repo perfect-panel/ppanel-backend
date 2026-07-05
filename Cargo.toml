@@ -1,0 +1,47 @@
+[workspace]
+members = ["crates/*"]
+
+[package]
+name = "ppanel-backend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+asynq = { version = "0.1", features = ["json"] }
+anyhow = "1"
+async-trait = "0.1"
+axum = "0.8"
+chrono = "0.4"
+base64 = "0.22"
+hex = "0.4"
+jwt = { path = "crates/jwt" }
+oauth = { path = "crates/oauth" }
+password = { path = "crates/password" }
+rand = "0.8"
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+result = { path = "crates/result" }
+payment = { path = "crates/payment" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_urlencoded = "0.7"
+serde_yaml = "0.9"
+sqlx = { version = "0.9", features = ["runtime-tokio", "postgres", "mysql", "any", "chrono", "uuid", "migrate", "derive", "macros"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.6", features = ["trace"] }
+tracing = "0.1"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-opentelemetry = "0.28"
+opentelemetry = { version = "0.27", features = ["trace"] }
+opentelemetry_sdk = { version = "0.27", features = ["rt-tokio", "trace"] }
+opentelemetry-otlp = { version = "0.27", features = ["grpc-tonic", "http-proto", "trace"] }
+opentelemetry-stdout = { version = "0.27", features = ["trace"] }
+opentelemetry-semantic-conventions = "0.27"
+uuid = { version = "1", features = ["v4", "v5", "serde"] }
+md5 = "0.7"
+urlencoding = "2"
+gtmpl = "0.7"
+gtmpl_value = "0.5"
+sms = { path = "crates/sms" }
+email = { path = "crates/email" }
+reqwest = { version = "0.12", features = ["json"] }

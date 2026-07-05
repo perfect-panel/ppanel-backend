@@ -1,0 +1,12 @@
+mod create_document_handler;
+pub use create_document_handler::create_document;
+mod update_document_handler;
+pub use update_document_handler::update_document;
+mod delete_document_handler;
+pub use delete_document_handler::delete_document;
+mod batch_delete_document_handler;
+pub use batch_delete_document_handler::batch_delete_document;
+mod get_document_detail_handler;
+pub use get_document_detail_handler::get_document_detail;
+mod get_document_list_handler;
+pub use get_document_list_handler::get_document_list;

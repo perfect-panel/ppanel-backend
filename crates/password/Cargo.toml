@@ -1,0 +1,12 @@
+[package]
+name = "password"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+pbkdf2 = "0.12"
+sha2 = "0.10"
+md5 = "0.7"
+bcrypt = "0.15"
+hex = "0.4"
+rand = "0.8"

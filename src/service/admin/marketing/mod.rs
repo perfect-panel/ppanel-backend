@@ -1,0 +1,9 @@
+pub mod create_batch_send_email_task_service;
+pub mod create_quota_task_service;
+pub mod get_batch_send_email_task_list_service;
+pub mod get_batch_send_email_task_status_service;
+pub mod get_pre_send_email_count_service;
+pub mod query_quota_task_list_service;
+pub mod query_quota_task_pre_count_service;
+pub mod query_quota_task_status_service;
+pub mod stop_batch_send_email_task_service;

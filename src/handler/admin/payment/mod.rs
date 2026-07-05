@@ -1,0 +1,10 @@
+mod create_payment_method_handler;
+pub use create_payment_method_handler::create_payment_method;
+mod update_payment_method_handler;
+pub use update_payment_method_handler::update_payment_method;
+mod delete_payment_method_handler;
+pub use delete_payment_method_handler::delete_payment_method;
+mod get_payment_method_list_handler;
+pub use get_payment_method_list_handler::get_payment_method_list;
+mod get_payment_platform_handler;
+pub use get_payment_platform_handler::get_payment_platform;

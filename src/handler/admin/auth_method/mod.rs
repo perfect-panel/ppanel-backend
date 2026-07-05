@@ -1,0 +1,14 @@
+mod get_auth_method_config_handler;
+pub use get_auth_method_config_handler::get_auth_method_config;
+mod update_auth_method_config_handler;
+pub use update_auth_method_config_handler::update_auth_method_config;
+mod get_auth_method_list_handler;
+pub use get_auth_method_list_handler::get_auth_method_list;
+mod get_email_platform_handler;
+pub use get_email_platform_handler::get_email_platform;
+mod get_sms_platform_handler;
+pub use get_sms_platform_handler::get_sms_platform;
+mod test_email_send_handler;
+pub use test_email_send_handler::test_email_send;
+mod test_sms_send_handler;
+pub use test_sms_send_handler::test_sms_send;

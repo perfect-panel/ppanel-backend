@@ -1,0 +1,17 @@
+pub mod ads;
+pub mod announcement;
+pub mod application;
+pub mod auth_method;
+pub mod console;
+pub mod coupon;
+pub mod document;
+pub mod log;
+pub mod marketing;
+pub mod order;
+pub mod payment;
+pub mod server;
+pub mod subscribe;
+pub mod system;
+pub mod ticket;
+pub mod tool;
+pub mod user;

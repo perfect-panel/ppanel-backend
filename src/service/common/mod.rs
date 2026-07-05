@@ -1,0 +1,10 @@
+pub mod check_verification_code_service;
+pub mod get_ads_service;
+pub mod get_client_service;
+pub mod get_global_config_service;
+pub mod get_privacy_policy_service;
+pub mod get_stat_service;
+pub mod get_tos_service;
+pub mod heartbeat_service;
+pub mod send_email_code_service;
+pub mod send_sms_code_service;
