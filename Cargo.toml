@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/*"]
+members = ["crates/*", "tools/mysql2postgres"]
 
 [package]
 name = "ppanel-backend"
