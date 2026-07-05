@@ -9,35 +9,22 @@
 
 **PPanel 服务端的 Rust 重写版本 — 基于 Axum + sqlx，同时支持 MySQL / MariaDB 和 PostgreSQL。**
 
-[中文](README.md) | [报告问题](https://github.com/perfect-panel/ppanel-backend/issues/new)
-
 </div>
-
-> **第一条**  
-> 人人生而自由，在尊严与权利上一律平等。  
-> 他们赋有理性与良知，应当以兄弟般的精神彼此相待。  
->
-> **第十九条**  
-> 人人有思想与表达的自由；此项自由包括持有主张而不受干预，以及通过任何媒介、无论国界，自由寻求、接受和传播信息与思想。  
->
-> *来源：[United Nations – Universal Declaration of Human Rights](https://www.un.org/sites/un2.un.org/files/2021/03/udhr.pdf)*
 
 ---
 
 ## 📋 概述
 
-`ppanel-backend` 是 [PPanel 服务端 (Go)](https://github.com/perfect-panel/server) 的 Rust 移植版本，使用 **Axum 0.8 + sqlx 0.9 + Tokio** 构建，与 Go 版本保持完整的 API 兼容性。
+`ppanel-backend` 是 [PPanel 服务端 (Go)](https://github.com/perfect-panel/backend) 的 Rust 移植版本，使用 **Axum 0.8 + sqlx 0.9 + Tokio** 构建，与 Go 版本保持完整的 API 兼容性。
 
 ### 与 Go 版本的差异与改进
 
 | 维度 | Go 版 | Rust 版 |
 |---|---|---|
-| HTTP 框架 | go-zero / Hertz | Axum 0.8 |
+| HTTP 框架 | Hertz | Axum 0.8 |
 | ORM | GORM | sqlx 0.9（编译期 SQL 检查） |
-| 数据库 | MySQL 为主 | MySQL / MariaDB + PostgreSQL 双后端 |
 | 异步运行时 | goroutine | Tokio |
 | 内存安全 | GC | 所有权系统，无 GC 暂停 |
-| 插件系统 | WebAssembly | 暂不实现 |
 
 ### 核心特性
 

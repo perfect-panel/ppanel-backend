@@ -1,4 +1,3 @@
--- migrate:up
 DROP TABLE IF EXISTS `email_task`;
 CREATE TABLE `task` (
                         `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -13,5 +12,3 @@ CREATE TABLE `task` (
                         `updated_at` datetime(3) DEFAULT NULL COMMENT 'Update Time',
                         PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
--- migrate:down
-

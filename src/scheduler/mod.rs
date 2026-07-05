@@ -38,7 +38,7 @@ impl Service {
         Self::register(
             &scheduler,
             types::SCHEDULER_CHECK_SUBSCRIPTION,
-            "@every 60s",
+            "*/30 * * * * *",
             "default",
         )
         .await?;
@@ -47,7 +47,7 @@ impl Service {
         Self::register(
             &scheduler,
             types::SCHEDULER_RESET_TRAFFIC,
-            "30 0 * * *",
+            "0 30 0 * * *",
             "default",
         )
         .await?;
@@ -56,7 +56,7 @@ impl Service {
         Self::register(
             &scheduler,
             types::SCHEDULER_TRAFFIC_STAT,
-            "0 0 * * *",
+        "0 0 0 * * *",
             "default",
         )
         .await?;
@@ -65,7 +65,7 @@ impl Service {
         Self::register(
             &scheduler,
             types::FORTHWITH_QUOTA_TASK,
-            "0 1 * * *",
+            "0 0 1 * * *",
             "default",
         )
         .await?;

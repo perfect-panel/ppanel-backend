@@ -1,5 +1,2 @@
--- migrate:up
 ALTER TABLE "ads" ADD COLUMN IF NOT EXISTS "description" VARCHAR(255) DEFAULT '';
-
--- migrate:down
 

@@ -1,4 +1,3 @@
--- migrate:up
 -- migrations/02008_create_user_reset_subscribe_log.up.sql
 -- Purpose: Create user_reset_subscribe_log table
 -- Author: PPanel Team, 2025-04-22
@@ -16,11 +15,4 @@ CREATE TABLE IF NOT EXISTS `user_reset_subscribe_log`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci;
-
--- migrate:down
--- migrations/02008_create_user_reset_subscribe_log.down.sql
--- Purpose: Drop user_reset_subscribe_log table
--- Author: PPanel Team, 2025-04-22
-
-DROP TABLE IF EXISTS `user_reset_subscribe_log`;
 

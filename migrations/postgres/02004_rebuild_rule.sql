@@ -1,4 +1,3 @@
--- migrate:up
 -- migrations/02003_rebuild_rule.up.sql
 -- Purpose: rebuilding server rule table
 -- Author: PPanel Team, 2025-04-21
@@ -18,10 +17,4 @@ CREATE TABLE "server_rule_group"
     CONSTRAINT "uni_server_rule_group_name" UNIQUE ("name")
 );
 CREATE INDEX IF NOT EXISTS "server_rule_group_idx_enable" ON "server_rule_group" ("enable");
-
--- migrate:down
--- migrations/02003_rebuild_rule.up.sql
--- Purpose: Back rebuilding server rule table
--- Author: PPanel Team, 2025-04-21
-DROP TABLE IF EXISTS server_rule_group;
 
