@@ -1,4 +1,3 @@
--- migrate:up
 CREATE TABLE IF NOT EXISTS `servers` (
         `id` bigint NOT NULL AUTO_INCREMENT,
         `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'Server Name',
@@ -27,8 +26,4 @@ CREATE TABLE IF NOT EXISTS `nodes` (
      `updated_at` datetime(3) DEFAULT NULL COMMENT 'Update Time',
      PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- migrate:down
-DROP TABLE IF EXISTS `nodes`;
-DROP TABLE IF EXISTS `servers`;
 

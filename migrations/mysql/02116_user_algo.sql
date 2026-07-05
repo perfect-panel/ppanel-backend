@@ -1,4 +1,3 @@
--- migrate:up
 -- 添加 algo 列（如果不存在）
 SET @dbname = DATABASE();
 SET @tablename = 'user';
@@ -34,9 +33,4 @@ SET @sql = (
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
-
--- migrate:down
-ALTER TABLE `user`
-DROP COLUMN `algo`,
-    DROP COLUMN `salt`;
 

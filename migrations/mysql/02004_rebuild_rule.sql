@@ -1,4 +1,3 @@
--- migrate:up
 -- migrations/02003_rebuild_rule.up.sql
 -- Purpose: rebuilding server rule table
 -- Author: PPanel Team, 2025-04-21
@@ -21,8 +20,3 @@ CREATE TABLE `server_rule_group`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci;
--- migrate:down
--- migrations/02003_rebuild_rule.up.sql
--- Purpose: Back rebuilding server rule table
--- Author: PPanel Team, 2025-04-21
-DROP TABLE IF EXISTS server_rule_group;

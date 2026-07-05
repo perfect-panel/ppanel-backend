@@ -324,7 +324,7 @@ pub fn register_routes(state: AppState) -> Router<()> {
         .route("/v1/server/push", post(server_push_user_traffic))
         .route("/v1/server/status", post(server_push_status))
         .route("/v1/server/user", get(get_server_user_list))
-        .route("/v2/server/:server_id", get(query_server_protocol_config))
+        .route("/v2/server/{server_id}", get(query_server_protocol_config))
         .route("/v1/subscribe/config", get(subscribe_handler))
         .route("/", get(pan_domain_subscribe_handler))
         .route("/v1/telegram", post(telegram_handler));
