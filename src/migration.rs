@@ -14,7 +14,12 @@ mod mysql_migrations {
 
 mod postgres_migrations {
     #![allow(unused)]
-    pub(super) const MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("migrations/postgres");
+    pub(super) fn migrator() -> sqlx::migrate::Migrator {
+        let mut m = sqlx::migrate!("migrations/postgres");
+        m.set_locking(false);
+        m.no_tx = true;
+        m
+    }
 }
 
 pub use crate::repository::Dialect;
@@ -24,7 +29,7 @@ use crate::repository::Db;
 /// Run all pending migrations for the detected database dialect.
 pub async fn run_migrations(db: &Db) -> Result<(), sqlx::migrate::MigrateError> {
     match db {
-        Db::Postgres(pool) => postgres_migrations::MIGRATOR.run(pool).await,
+        Db::Postgres(pool) => postgres_migrations::migrator().run(pool).await,
         Db::Mysql(pool) => mysql_migrations::MIGRATOR.run(pool).await,
     }
 }
@@ -60,6 +65,7 @@ async fn create_admin_user_pg(
     }
 
     let now = chrono::Utc::now().timestamp_millis();
+    let now_ts = chrono::Utc::now(); // chrono::DateTime<Utc> -> PG timestamp
     let password_hash = hash_password_pbkdf2(password);
     let refer_code = generate_invite_code();
 
@@ -68,12 +74,12 @@ async fn create_admin_user_pg(
                gift_amount, enable, enable_balance_notify,
                enable_login_notify, enable_subscribe_notify,
                enable_trade_notify, created_at, updated_at)
-           VALUES ($1, 'default', 1, $2, 0, 0, 0, 1, 1, 1, 1, 1, $3, $4)"#,
+           VALUES ($1, 'default', TRUE, $2, 0, 0, 0, TRUE, TRUE, TRUE, TRUE, TRUE, $3, $4)"#,
     )
     .bind(&password_hash)
     .bind(&refer_code)
-    .bind(now)
-    .bind(now)
+    .bind(now_ts)
+    .bind(now_ts)
     .execute(pool)
     .await
     .map_err(|e| {
@@ -93,12 +99,12 @@ async fn create_admin_user_pg(
 
     sqlx::query(
         r#"INSERT INTO user_auth_methods (user_id, auth_type, auth_identifier, verified, created_at, updated_at)
-           VALUES ($1, 'email', $2, 1, $3, $4)"#,
+           VALUES ($1, 'email', $2, TRUE, $3, $4)"#,
     )
     .bind(user_id)
     .bind(email)
-    .bind(now)
-    .bind(now)
+    .bind(now_ts)
+    .bind(now_ts)
     .execute(pool)
     .await
     .map_err(|e| {

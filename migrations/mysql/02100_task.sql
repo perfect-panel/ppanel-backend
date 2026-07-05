@@ -1,4 +1,3 @@
--- migrate:up
 DROP TABLE IF EXISTS `email_task`;
 CREATE TABLE `email_task` (
                                `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'ID',
@@ -23,5 +22,3 @@ CREATE TABLE `email_task` (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- migrate:down
-DROP TABLE IF EXISTS `email_task`;

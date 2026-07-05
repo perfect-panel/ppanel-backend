@@ -1,8 +1,3 @@
--- migrate:up
 ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "algo" VARCHAR(20) NOT NULL DEFAULT 'default';
 ALTER TABLE "user" ADD COLUMN IF NOT EXISTS "salt" VARCHAR(20) NOT NULL DEFAULT 'default';
-
--- migrate:down
-ALTER TABLE "user" DROP COLUMN IF EXISTS "algo";
-ALTER TABLE "user" DROP COLUMN IF EXISTS "salt";
 

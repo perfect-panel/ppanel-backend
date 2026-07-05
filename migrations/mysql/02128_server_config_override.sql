@@ -1,4 +1,3 @@
--- migrate:up
 CREATE TABLE IF NOT EXISTS `server_config_overrides`
 (
     `id`          bigint                                                        NOT NULL AUTO_INCREMENT,
@@ -14,7 +13,4 @@ CREATE TABLE IF NOT EXISTS `server_config_overrides`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci;
-
--- migrate:down
-DROP TABLE IF EXISTS `server_config_overrides`;
 

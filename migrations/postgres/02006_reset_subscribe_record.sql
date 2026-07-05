@@ -1,4 +1,3 @@
--- migrate:up
 -- migrations/02008_create_user_reset_subscribe_log.up.sql
 -- Purpose: Create user_reset_subscribe_log table
 -- Author: PPanel Team, 2025-04-22
@@ -14,11 +13,4 @@ CREATE TABLE IF NOT EXISTS "user_reset_subscribe_log"
 );
 CREATE INDEX IF NOT EXISTS "user_reset_subscribe_log_idx_user_id" ON "user_reset_subscribe_log" ("user_id");
 CREATE INDEX IF NOT EXISTS "user_reset_subscribe_log_idx_user_subscribe_id" ON "user_reset_subscribe_log" ("user_subscribe_id");
-
--- migrate:down
--- migrations/02008_create_user_reset_subscribe_log.down.sql
--- Purpose: Drop user_reset_subscribe_log table
--- Author: PPanel Team, 2025-04-22
-
-DROP TABLE IF EXISTS "user_reset_subscribe_log";
 

@@ -1,4 +1,3 @@
--- migrate:up
 -- 只有当 ads 表中不存在 description 字段时才添加
 SET
 @col_exists := (
@@ -19,6 +18,4 @@ SET
 PREPARE stmt FROM @query;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
-
--- migrate:down
 

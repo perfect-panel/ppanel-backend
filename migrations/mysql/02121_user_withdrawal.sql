@@ -1,4 +1,3 @@
--- migrate:up
 CREATE TABLE IF NOT EXISTS `withdrawals` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT 'Primary Key',
     `user_id` BIGINT NOT NULL COMMENT 'User ID',
@@ -15,10 +14,3 @@ CREATE TABLE IF NOT EXISTS `withdrawals` (
 INSERT IGNORE INTO `system` (`category`, `key`, `value`, `type`, `desc`, `created_at`, `updated_at`)
 VALUES
     ('invite', 'WithdrawalMethod', '', 'string', 'withdrawal method', '2025-04-22 14:25:16.637', '2025-04-22 14:25:16.637');
--- migrate:down
-DROP TABLE IF EXISTS `withdrawals`;
-
-DELETE FROM `system`
-WHERE `category` = 'invite'
-  AND `key` = 'WithdrawalMethod';
-
