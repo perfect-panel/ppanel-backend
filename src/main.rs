@@ -133,11 +133,8 @@ async fn main() {
         .expect("failed to connect to database");
     tracing::info!("database connected");
 
-    // ── Run pending migrations ──────────────────────────────────────────
-    migration::run_migrations(&db)
-        .await
-        .expect("database migration failed");
-    tracing::info!("database migrations applied");
+    // ── Ensure schema is present (invoke Go migrate tool if needed) ────
+    migration::ensure_schema(&db, &cfg.database).await;
 
     // ── Seed initial admin account if needed ────────────────────────────
     migration::create_admin_user(&db, &cfg.administrator.email, &cfg.administrator.password)

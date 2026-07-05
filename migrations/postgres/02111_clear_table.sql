@@ -1,3 +1,0 @@
-DROP TABLE IF EXISTS "subscribe_type";
-DROP TABLE IF EXISTS "sms";
-
