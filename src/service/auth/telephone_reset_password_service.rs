@@ -25,6 +25,14 @@ impl TelephoneResetPasswordService {
     }
 
     pub async fn reset(&self, req: TelephoneResetPasswordRequest) -> Result<LoginResponse, anyhow::Error> {
+        // Turnstile (mirrors Go: Verify.ResetPasswordVerify && !Debug)
+        super::utils::check_turnstile(
+            self.config.verify.reset_password_verify && self.config.model != "dev",
+            &self.config.verify.turnstile_secret,
+            &req.cf_token,
+            &req.ip,
+        ).await?;
+
         let phone = format!("+{}{}", req.telephone_area_code, req.telephone);
 
         let cache_key = format!("{}:{}", crate::config::cache_key::AUTH_CODE_TELEPHONE_CACHE_KEY, phone);

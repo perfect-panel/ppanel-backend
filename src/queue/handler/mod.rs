@@ -77,11 +77,17 @@ pub fn register_all(repos: Arc<Repositories>, config: Arc<Config>) -> ServeMux {
         },
     );
 
-    // ── Quota task ────────────────────────────────────────────────────────────
+    // ── Quota task + Rate task ─────────────────────────────────────────────────
     let quota_repos = Arc::clone(&repos);
     let quota_config = Arc::clone(&config);
-    mux.handle_async_func(crate::queue::types::FORTHWITH_QUOTA_TASK, move |task| {
-        task::quota_task(task, Arc::clone(&quota_repos), Arc::clone(&quota_config))
+    mux.handle_async_func(crate::queue::types::FORTHWITH_QUOTA_TASK, move |t| {
+        task::quota_task(t, Arc::clone(&quota_repos), Arc::clone(&quota_config))
+    });
+
+    let rate_repos = Arc::clone(&repos);
+    let rate_config = Arc::clone(&config);
+    mux.handle_async_func(crate::queue::types::FORTHWITH_RATE_TASK, move |t| {
+        task::rate_task(t, Arc::clone(&rate_repos), Arc::clone(&rate_config))
     });
 
     mux

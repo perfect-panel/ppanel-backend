@@ -44,4 +44,5 @@ gtmpl = "0.7"
 gtmpl_value = "0.5"
 sms = { path = "crates/sms" }
 email = { path = "crates/email" }
+turnstile = { path = "crates/turnstile" }
 reqwest = { version = "0.12", features = ["json"] }

@@ -1,0 +1,148 @@
+# PPanel Backend — 示例配置
+# 复制为 config.yaml 并按实际环境修改。
+# 路径可通过环境变量 PPANEL_CONFIG 覆盖。
+
+Host: 0.0.0.0
+Port: 8080
+# prod | dev （dev 模式跳过 Turnstile 验证，不建议生产使用）
+Model: prod
+Debug: false
+
+JwtAuth:
+  AccessSecret: "change-me-to-a-random-secret"
+  AccessExpire: 86400        # token 有效期（秒）
+
+# ── 数据库 ──────────────────────────────────────────────────────────────
+# 支持 mysql（含 MariaDB）和 postgres，运行时自动检测方言。
+Database:
+  Driver: mysql              # mysql | postgres
+  Addr: "127.0.0.1:3306"    # MySQL: host:port / PG: host:port
+  Username: ppanel
+  Password: your-db-password
+  DBName: ppanel
+  # 以下为可选调优
+  MaxIdleConns: 10
+  MaxOpenConns: 100
+
+# ── Redis ───────────────────────────────────────────────────────────────
+Redis:
+  Host: "127.0.0.1:6379"
+  Pass: ""
+  DB: 0
+
+# ── 管理员初始账号（首次启动自动创建）─────────────────────────────────
+Administrator:
+  Email: admin@example.com
+  Password: changeme
+
+# ── 日志 ────────────────────────────────────────────────────────────────
+Logger:
+  ServiceName: ppanel-backend
+  Mode: console              # console | file | volume
+  Encoding: plain            # plain | json
+  Level: info
+  Path: logs
+  # KeepDays: 7
+  # MaxBackups: 30
+
+# ── 链路追踪（OpenTelemetry，可选）──────────────────────────────────────
+Trace:
+  Name: ppanel
+  # stdout | otlpgrpc | otlphttp（留空或 Disabled:true 则禁用）
+  Batcher: stdout
+  Endpoint: ""
+  Sampler: 1.0
+  Disabled: true
+
+# ── 站点 ────────────────────────────────────────────────────────────────
+Site:
+  Host: "https://your-domain.com"
+  SiteName: PPanel
+  SiteDesc: ""
+  SiteLogo: ""
+  Keywords: ""
+
+# ── JWT 验证 ─────────────────────────────────────────────────────────────
+Verify:
+  TurnstileSiteKey: ""
+  TurnstileSecret: ""
+  LoginVerify: false
+  RegisterVerify: false
+  ResetPasswordVerify: false
+
+VerifyCode:
+  ExpireTime: 300
+  Limit: 3
+  Interval: 60
+
+# ── 注册 ─────────────────────────────────────────────────────────────────
+Register:
+  StopRegister: false
+  EnableIpRegisterLimit: false
+  IpRegisterLimit: 5
+  IpRegisterLimitDuration: 3600
+
+# ── 订阅 ─────────────────────────────────────────────────────────────────
+Subscribe:
+  SingleModel: false
+  SubscribePath: /sub
+  SubscribeDomain: ""
+  PanDomain: false
+  UserAgentLimit: false
+  UserAgentList: ""
+  ShowTutorial: true
+
+# ── 邮件 ─────────────────────────────────────────────────────────────────
+Email:
+  Enable: true
+  Platform: smtp
+  PlatformConfig: '{"host":"smtp.example.com","port":465,"user":"no-reply@example.com","pass":"smtp-password","from":"PPanel <no-reply@example.com>"}'
+  EnableVerify: true
+  EnableNotify: true
+  EnableDomainSuffix: false
+  DomainSuffixList: ""
+
+# ── 短信（可选）──────────────────────────────────────────────────────────
+Mobile:
+  Enable: false
+  Platform: ""
+  PlatformConfig: ""
+  EnableVerify: false
+  EnableWhitelist: false
+
+# ── 设备 ─────────────────────────────────────────────────────────────────
+Device:
+  Enable: false
+  ShowAds: false
+  EnableSecurity: false
+  OnlyRealDevice: false
+  SecuritySecret: ""
+
+# ── 节点 ─────────────────────────────────────────────────────────────────
+Node:
+  NodeSecret: "change-me-node-secret"
+  NodePullInterval: 60
+  NodePushInterval: 60
+  TrafficReportThreshold: 0
+  IpStrategy: ""
+
+# ── 邀请 ─────────────────────────────────────────────────────────────────
+Invite:
+  ForcedInvite: false
+  ReferralPercentage: 10
+  OnlyFirstPurchase: false
+
+# ── 货币 ─────────────────────────────────────────────────────────────────
+Currency:
+  Unit: CNY
+  Symbol: "¥"
+  AccessKey: ""              # apilayer.com API Key（汇率换算，选填）
+
+# ── Telegram Bot（可选）──────────────────────────────────────────────────
+Telegram:
+  Enable: false
+  BotId: 0
+  BotName: ""
+  BotToken: ""
+  EnableNotify: false
+  WebHookDomain: ""

@@ -54,6 +54,20 @@ pub async fn verify_with_key(
     Ok(resp.success)
 }
 
+/// Guard: verify a token and return `Err(TOO_MANY_REQUESTS)` on failure.
+///
+/// Convenience wrapper used by auth service handlers — avoids repeating the
+/// same error mapping in every caller.
+pub async fn guard(secret: &str, token: &str, ip: &str) -> anyhow::Result<()> {
+    let ok = verify(secret, token, ip).await.unwrap_or(false);
+    if !ok {
+        // Use a plain anyhow error with a sentinel message; callers in the
+        // main crate map this to `error_code::TOO_MANY_REQUESTS`.
+        anyhow::bail!("turnstile_failed");
+    }
+    Ok(())
+}
+
 /// Generate a random UUID suitable for use as an idempotency key.
 pub fn random_uuid() -> String {
     uuid::Uuid::new_v4().to_string()

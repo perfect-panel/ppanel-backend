@@ -32,6 +32,14 @@ impl ResetPasswordService {
         &self,
         req: ResetPasswordRequest,
     ) -> Result<LoginResponse, anyhow::Error> {
+        // Turnstile (mirrors Go: Verify.ResetPasswordVerify && !Debug)
+        super::utils::check_turnstile(
+            self.config.verify.reset_password_verify && self.config.model != "dev",
+            &self.config.verify.turnstile_secret,
+            &req.cf_token,
+            &req.ip,
+        ).await?;
+
         let cache_key = format!("{}:2:{}", AUTH_CODE_CACHE_KEY, req.email);
         let cached = self
             .cache

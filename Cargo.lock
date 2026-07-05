@@ -3172,6 +3172,7 @@ dependencies = [
  "tracing-appender",
  "tracing-opentelemetry",
  "tracing-subscriber",
+ "turnstile",
  "urlencoding",
  "uuid 1.23.4",
 ]
@@ -4999,6 +5000,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "uuid 1.23.4",
 ]
 

@@ -250,3 +250,57 @@ impl QuotaTaskLogic {
         Ok(())
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RateLogic — port of `server/queue/logic/task/rateLogic.go`
+// Fetches the current exchange rate for the site currency and caches it.
+// ─────────────────────────────────────────────────────────────────────────────
+
+pub struct RateLogic {
+    repos: Arc<Repositories>,
+    config: Arc<Config>,
+}
+
+impl RateLogic {
+    pub fn new(repos: Arc<Repositories>, config: Arc<Config>) -> Self {
+        Self { repos, config }
+    }
+
+    /// Fetch exchange rate from apilayer.com and cache it in Redis.
+    ///
+    /// Skips silently when `Currency.AccessKey` is not configured.
+    pub async fn execute(&self) -> anyhow::Result<()> {
+        let access_key = &self.config.currency.access_key;
+        if access_key.is_empty() {
+            tracing::debug!("[RateLogic] skip: no Currency.AccessKey configured");
+            return Ok(());
+        }
+
+        let from = &self.config.currency.unit;
+        if from.is_empty() || from.to_uppercase() == "CNY" {
+            // Already in base currency — rate is 1.0, nothing to fetch.
+            tracing::debug!("[RateLogic] skip: currency unit is CNY or empty");
+            return Ok(());
+        }
+
+        match crate::exchange_rate::convert(from, "CNY", 1.0, access_key).await {
+            Ok(rate) => {
+                tracing::info!(
+                    "[RateLogic] exchange rate {from}→CNY = {rate:.6}"
+                );
+                // Persist rate to system config table.
+                let _ = self
+                    .repos
+                    .system
+                    .update_value_by_category_key("currency", "exchange_rate", &rate.to_string())
+                    .await
+                    .map_err(|e| tracing::warn!("[RateLogic] persist rate failed: {e}"));
+            }
+            Err(e) => {
+                tracing::error!("[RateLogic] fetch exchange rate failed: {e}");
+                return Err(e);
+            }
+        }
+        Ok(())
+    }
+}
