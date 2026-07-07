@@ -1,0 +1,3 @@
+ALTER TABLE `nodes`
+    ADD COLUMN `sort` INT UNSIGNED NOT NULL DEFAULT 0
+    COMMENT 'Sort' AFTER `enabled`;

@@ -1,0 +1,24 @@
+[package]
+name = "migrate"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+# The name of the lib target. We expose `ppanel_migrate` so the main
+# binary can `use ppanel_migrate::*`. The actual library name in
+# Cargo's eyes is "migrate" (matches [package].name), but the
+# `crate-type = ["staticlib"]` is what rust2go::Builder compiles the
+# Go code into for FFI.
+crate-type = ["staticlib", "rlib"]
+
+[features]
+# Default: build with the FFI bridge compiled in. The Go side is compiled
+# by build.rs via rust2go::Builder.
+default = []
+
+[dependencies]
+rust2go = "0.4"
+tracing = "0.1"
+
+[build-dependencies]
+rust2go = { version = "0.4", features = ["build"] }

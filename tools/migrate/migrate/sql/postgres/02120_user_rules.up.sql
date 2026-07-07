@@ -1,2 +1,0 @@
-ALTER TABLE "user"
-    ADD COLUMN "rules" TEXT NULL;

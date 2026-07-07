@@ -1,104 +1,59 @@
 //! Database bootstrap utilities.
 //!
-//! Schema migrations are **not** owned by this Rust binary. They are managed by
-//! the standalone Go tool at `tools/migrate/` (built with `go build -o ppanel-migrate ./cmd/migrate`),
-//! which uses golang-migrate and tracks state in the `schema_migrations` table
-//! — the same table the Go server uses. That makes a single source of truth
+//! Schema migrations are owned by the Go static library linked in via
+//! the `migrate` crate (which uses `rust2go` FFI). The Go code embeds
+//! the same SQL migration files and applies them via `golang-migrate`,
+//! tracking state in the `schema_migrations` table — the same table
+//! the original Go server used. That makes a single source of truth
 //! for schema across the Go and Rust backends.
 //!
-//! On startup, this module unconditionally invokes the `ppanel-migrate up` command.
-//! The tool's own logic is idempotent — if the DB is already at the latest
-//! version it returns ErrNoChange with no side effects.
+//! On startup, this module invokes the FFI-bound `migrate::up` call.
+//! The Go-side logic is idempotent — if the DB is already at the
+//! latest version it returns success with no side effects.
 //!
-//! **NOTE**: This is the Rust rewrite of the Go backend. The Go version is
-//! deprecated and will be replaced by this Rust implementation.
+//! **NOTE**: This is the Rust rewrite of the Go backend. The Go
+//! version is deprecated and will be replaced by this Rust
+//! implementation. The Go migration code is retained only as an
+//! in-process FFI dependency, not as a separately-spawned binary.
 
 pub use crate::repository::Dialect;
 
 use crate::config::DatabaseConfig;
 use crate::db::build_dsn;
 use crate::repository::Db;
-use std::path::PathBuf;
-use std::process::Command;
 
-/// Run all pending schema migrations by invoking the `ppanel-migrate up` command.
-/// Always called on startup — the tool is idempotent and is a no-op if the DB
-/// is already at the latest version.
-pub async fn ensure_schema(cfg: &DatabaseConfig) {
-    tracing::info!("running ppanel-migrate up");
-    run_migrate_tool(cfg).await;
-    tracing::info!("ppanel-migrate completed");
-}
-
-/// Resolve the path to the `ppanel-migrate` binary.
+/// Apply all pending schema migrations via the rust2go FFI bridge.
 ///
-/// Search order:
-/// 1. `${PPANEL_MIGRATE_BIN}` if set.
-/// 2. Next to the current executable (`./ppanel-migrate`).
-/// 3. One level up from the executable (cargo puts the binary in target/release/;
-///    the migrate tool often lives at tools/migrate/ppanel-migrate).
-/// 4. `$PATH` (via Command's default lookup).
-fn locate_migrate_bin() -> PathBuf {
-    if let Ok(p) = std::env::var("PPANEL_MIGRATE_BIN") {
-        return PathBuf::from(p);
-    }
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(dir) = exe.parent() {
-            let candidate = dir.join("ppanel-migrate");
-            if candidate.is_file() {
-                return candidate;
-            }
-            if let Some(parent) = dir.parent() {
-                let candidate = parent.join("ppanel-migrate");
-                if candidate.is_file() {
-                    return candidate;
-                }
-            }
-        }
-    }
-    PathBuf::from("ppanel-migrate")
-}
-
-async fn run_migrate_tool(cfg: &DatabaseConfig) {
-    let bin = locate_migrate_bin();
+/// Always called on startup — the migrator is idempotent and a no-op
+/// if the database is already at the latest version. Failures are
+/// fatal: the Go side reports the error in `MigrateOutcome.error` and
+/// we `panic!` with that message, aborting startup. This matches the
+/// fail-fast behaviour of the previous subprocess-based
+/// implementation.
+pub async fn ensure_schema(cfg: &DatabaseConfig) {
     let driver = match cfg.driver.as_str() {
         "mysql" => "mysql",
         _ => "postgres",
     };
     let dsn = build_dsn(cfg);
 
-    tracing::info!(driver, bin = %bin.display(), "running ppanel-migrate up");
+    tracing::info!(driver, "running schema migrations via rust2go FFI");
 
-    // Run the migrate tool synchronously — it must complete before we serve
-    // any traffic. Failures are fatal.
-    let output = Command::new(&bin)
-        .arg("-driver")
-        .arg(driver)
-        .arg("-dsn")
-        .arg(&dsn)
-        .arg("up")
-        .output()
-        .unwrap_or_else(|e| {
-            panic!(
-                "failed to execute ppanel-migrate at {}: {e}. \
-                 Build it with `go build -o ppanel-migrate ./cmd/migrate` \
-                 from ppanel-backend/tools/migrate, or set $PPANEL_MIGRATE_BIN",
-                bin.display(),
-            )
-        });
+    // The FFI call is synchronous and may take seconds (open conn,
+    // apply all pending migrations, close conn). Run it on a blocking
+    // thread so we don't stall the tokio reactor if other startup
+    // tasks were racing us.
+    let outcome = tokio::task::spawn_blocking(move || {
+        migrate::up(driver, &dsn)
+    })
+    .await
+    .expect("migration task panicked");
 
-    if !output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        panic!(
-            "ppanel-migrate exited with status {}: {}{}{}",
-            output.status,
-            stdout,
-            if !stdout.is_empty() && !stderr.is_empty() { "\n" } else { "" },
-            stderr,
-        );
-    }
-    tracing::info!("ppanel-migrate completed");
+    tracing::info!(
+        version = outcome.version,
+        dirty = outcome.dirty,
+        "schema migrations complete"
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
